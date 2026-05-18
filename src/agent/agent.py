@@ -23,41 +23,44 @@ async def analyze_posts():
     destructive_posts = []
     processed_ids = []
     posts = await get_unanalyzed_posts()
+    print(posts)
     async with lms.AsyncClient(api_host="localhost:1234") as client:
         model = await client.llm.model("qwen/qwen3.5-9b")
         
-        for post in posts:
-            try:
-                if len(post) < 3:
-                    raise ValueError(f"Post кортеж имеет длину {len(post)}, ожидается 3")
-                post_id, user_id, text = post[0], post[1], post[2]
-                
-                if len(text) > 12000:
-                    text = text[:12000] + "..."
-                
-                chat = lms.Chat(system_prompt)
-                chat.add_user_message(f"Text:\n{text}")
-                
-                result = await model.respond(
-                    chat,
-                    response_format=AnalyzedSchema,
-                    config={"temperature": 0.0, "timeout": 60.0}
-                )
-                analyze = result.parsed
-                print(analyze)
+        if posts:
+            for post in posts:
+                try:
+                    if len(post) < 3:
+                        raise ValueError(f"Post кортеж имеет длину {len(post)}, ожидается 3")
+                    post_id, user_id, text = post[0], post[1], post[2]
+                    
+                    if len(text) > 12000:
+                        text = text[:12000] + "..."
+                    
+                    chat = lms.Chat(system_prompt)
+                    chat.add_user_message(f"Text:\n{text}")
+                    
+                    result = await model.respond(
+                        chat,
+                        response_format=AnalyzedSchema,
+                        config={"temperature": 0.0, "timeout": 60.0}
+                    )
+                    analyze = result.parsed
+                    print(analyze)
 
-                if analyze.get("destructive"):
-                    destructive_posts.append({
-                        "post_id": post_id,
-                        "user_id": user_id,
-                        "reason": analyze.get("reason", "")
-                    })
-                
-                processed_ids.append(post_id)
-                
-            except Exception as e:
-                print(f"Ошибка при анализе поста {post[0] if post else '?'}: {e}")
-                continue
+                    if analyze.get("destructive"):
+                        destructive_posts.append({
+                            "post_id": post_id,
+                            "user_id": user_id,
+                            "reason": analyze.get("reason", "")
+                        })
+                    
+                    processed_ids.append(post_id)
+                    print(processed_ids)
+                    
+                except Exception as e:
+                    print(f"Ошибка при анализе поста {post[0] if post else '?'}: {e}")
+                    continue
 
         await add_alerts(destructive_posts)
         await update_statuses(processed_ids)

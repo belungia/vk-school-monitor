@@ -38,12 +38,20 @@ async def get_unanalyzed_posts():
 async def update_statuses(ids: list[int]):
     try:
         async with get_db_session() as session:
-            stmt = (
+            if ids:
+                stmt1 = (
+                    update(Post)
+                    .where(Post.id.in_(ids), Post.status_id == 0)
+                    .values(status_id=1)
+                )
+                await session.execute(stmt1)
+
+            stmt2 = (
                 update(Post)
-                .where(Post.id.in_(ids), Post.status_id == 0)
+                .where(Post.text == '')
                 .values(status_id=1)
             )
-            await session.execute(stmt)
+            await session.execute(stmt2)
             await session.commit()
 
     except Exception as e:

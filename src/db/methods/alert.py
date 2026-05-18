@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 async def add_alerts(analyzed_posts: list[dict]):
-    try:
-        async with get_db_session() as session:
-            await session.execute(insert(Alert).values((analyzed_posts)))
-    
-    except Exception as e:
-        raise
+    if analyzed_posts:
+        try:
+            async with get_db_session() as session:
+                await session.execute(insert(Alert).values(analyzed_posts))
+        
+        except Exception as e:
+            raise
