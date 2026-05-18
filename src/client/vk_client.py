@@ -4,6 +4,7 @@ import logging
 
 import aiohttp
 from typing import Optional
+from datetime import datetime
 
 from src.config import settings
 from src.client.scripts import wall_get_script
@@ -90,9 +91,8 @@ class VKCLient:
 
                 for post in owner_posts:
                     post_data = {
-                        "date": post["date"],
-                        "id": post["id"],
-                        "owner_id": post["owner_id"],
+                        "date": datetime.utcfromtimestamp(post["date"]),
+                        "user_id": post["owner_id"],
                         "text": post["text"],
                         "link": f"https://vk.com/wall{post["owner_id"]}_{post["id"]}"
                     }

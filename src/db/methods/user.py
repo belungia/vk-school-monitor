@@ -1,7 +1,6 @@
 import logging
 
 from sqlalchemy import insert, select
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from src.db.session import get_db_session
 from src.db.models import User

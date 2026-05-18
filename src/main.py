@@ -1,8 +1,11 @@
 import asyncio
 
+from src.db.methods.post import add_posts
 from src.client import VKCLient
 from src.client.scripts import wall_get_script
 from src.db.methods.user import add_user, add_users, get_tracked_users_last_post_dates
+from src.db.methods.post import get_unanalyzed_posts
+from src.agent.agent import analyze_posts
 
 
 async def main():
@@ -23,8 +26,13 @@ async def main():
 
     # print(await get_id_last_post_date_map())
 
-    async with VKCLient() as vk:
-        print(await vk.wall_get(await get_tracked_users_last_post_dates()))
+    # users_last_post_dates_map = await get_tracked_users_last_post_dates()
+    # async with VKCLient() as vk:
+    #     posts = await vk.wall_get(users_last_post_dates_map)
+    # await add_posts(posts)
+
+    await analyze_posts()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
