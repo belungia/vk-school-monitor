@@ -1,11 +1,13 @@
 import asyncio
+import uvicorn
 
 from src.db.methods.post import add_posts
 from src.client import VKCLient
 from src.client.scripts import wall_get_script
-from src.db.methods.user import add_user, add_users, get_tracked_users_last_post_dates
+from src.db.methods.user import api_get_users, api_add_user, api_add_users, get_tracked_users_last_post_dates
 from src.db.methods.post import get_unanalyzed_posts
 from src.agent.agent import analyze_posts
+from src.api.routes import app
 
 
 async def main():
@@ -31,7 +33,9 @@ async def main():
     #     posts = await vk.wall_get(users_last_post_dates_map)
     # await add_posts(posts)
 
-    await analyze_posts()
+    # await analyze_posts()
+
+    await uvicorn.run("src.main:app", reload=True)
 
 
 if __name__ == "__main__":
