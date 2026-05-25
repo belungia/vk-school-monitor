@@ -10,6 +10,7 @@ from src.db.models.base import Base
 if TYPE_CHECKING:
     from src.db.models.post import Post
     from src.db.models.alert import Alert
+    from src.db.models.group import UserGroup
 
 
 class User(Base, CreatedAtMixin, UpdatedAtMixin):
@@ -23,6 +24,7 @@ class User(Base, CreatedAtMixin, UpdatedAtMixin):
     status_id: Mapped[int] = mapped_column(ForeignKey("user_statuses.id"), index=True, default=0)
     last_post_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=False), default=None)
 
+    subscriptions: Mapped[list["UserGroup"]] = relationship("UserGroup", back_populates="user", cascade="all, delete-orphan")
     status: Mapped["UserStatus"] = relationship("UserStatus", back_populates="users")
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="user", cascade="all, delete-orphan")
     alerts: Mapped[list["Alert"]] = relationship("Alert", back_populates="user", cascade="all, delete-orphan")

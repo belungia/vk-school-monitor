@@ -1,6 +1,7 @@
 import logging
 
 from sqlalchemy import and_, insert, null, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from src.db.models.post import Post
 from src.db.session import get_db_session 
@@ -9,23 +10,24 @@ from src.db.session import get_db_session
 logger = logging.getLogger(__name__)
 
 
-async def add_posts(posts: list[dict]):
-    try:
-        async with get_db_session() as session:
-            await session.execute(insert(Post).values(posts))
+async def add_posts(posts: list[dict]) -> int:
+    if not posts:
+        return 0
+    async with get_db_session() as session:
+        try:
+            stmt = pg_insert(Post).values(posts).on_conflict_do_nothing(index_elements=["link"])
+            result = await session.execute(stmt)
             await session.commit()
-            return True
-        
-    except Exception as e:
-        logger.error(f"Unexpected db error for add posts: {e}")
-        if session:
+            return result.rowcount
+        except Exception as e:
+            logger.error(f"Unexpected db error for add posts: {e}")
             await session.rollback()
-        raise
+            raise
     
 async def get_unanalyzed_posts():
     try:
         async with get_db_session() as session:
-            stmt = select(Post.id, Post.user_id, Post.text).where(and_(Post.text != '', Post.status_id == 0))
+            stmt = select(Post.id, Post.user_id, Post.group_id, Post.text).where(and_(Post.text != '', Post.status_id == 0))
             result = await session.execute(stmt)
             return result.all()
 

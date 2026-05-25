@@ -1,17 +1,19 @@
-def wall_get_script(domains: list):
+def wall_get_script(owner_ids: list[int]) -> str:
     script = f"""
-    var domains = {domains};
+    var owner_ids = {owner_ids};
     var results = [];
     var i = 0;
-
-    while (i < domains.length) {{
-        var posts = API.wall.get({{
-            "domain": domains[i],
+    while (i < owner_ids.length) {{
+        var r = API.wall.get({{
+            "owner_id": owner_ids[i],
             "count": 100,
-            "filter": "owner"
+            "filter": "all",
+            "v": "5.199"
         }});
-        if (posts.items) {{
-            results.push(posts.items);
+        if (r && r.items) {{
+            results.push(r.items);
+        }} else {{
+            results.push([]);
         }}
         i = i + 1;
     }}

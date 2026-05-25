@@ -30,7 +30,7 @@
                     <i class="fab fa-vk text-blue-600 text-3xl"></i> 
                     VK School Monitor
                 </h1>
-                <p class="text-gray-500 text-sm mt-1">Анализ деструктивного контента · ИИ-агент</p>
+                <p class="text-gray-500 text-sm mt-1">Анализ социальной активности учеников · Выявление деструктивного контента</p>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm w-fit">
                 <i class="fas fa-shield-alt text-green-600"></i>
@@ -50,6 +50,9 @@
                 <button id="nav-notifications" class="nav-item px-5 py-2.5 rounded-xl font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-smooth flex items-center gap-2">
                     <i class="fas fa-bell"></i> Уведомления
                 </button>
+                <button id="nav-groups" class="nav-item px-5 py-2.5 rounded-xl font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-smooth flex items-center gap-2">
+                    <i class="fas fa-layer-group"></i> Сообщества
+                </button>
             </nav>
         </div>
 
@@ -59,7 +62,7 @@
             <div id="page-students" class="page-content">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-list-check text-blue-500"></i>Список учеников</h2>
-                    <div class="flex flex-wrap gap-3">
+                    <div class="flex flex-wrap gap-3 items-center">
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                             <input type="text" id="filterSearch" placeholder="Поиск по имени или фамилии" class="filter-input pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm w-64 focus:ring-2 focus:ring-blue-100">
@@ -70,6 +73,9 @@
                             <option value="0">Не в мониторинге</option>
                         </select>
                         <button id="resetFiltersBtn" class="text-gray-500 hover:text-gray-700 text-sm px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50"><i class="fas fa-undo-alt mr-1"></i>Сброс</button>
+                        <button id="checkUpdatesBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition flex items-center gap-2 shadow-sm">
+                            <i class="fas fa-sync-alt"></i> Проверить
+                        </button>
                     </div>
                 </div>
 
@@ -80,7 +86,9 @@
                                 <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ученик</th>
                                 <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Телефон</th>
                                 <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ссылка VK</th>
+                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата последнего поста</th>
                                 <th class="px-5 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Мониторинг</th>
+                                <th class="px-5 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTableBody" class="bg-white divide-y divide-gray-100">
@@ -98,41 +106,33 @@
             <div id="page-add" class="page-content hidden">
                 <h2 class="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-2"><i class="fas fa-graduation-cap text-blue-500"></i>Добавить ученика</h2>
                 <div class="grid md:grid-cols-3 gap-8">
-                    <!-- форма ручного добавления -->
                     <div class="md:col-span-2 bg-gray-50 rounded-2xl p-5 border border-gray-200">
-                        <h3 class="font-medium text-gray-700 mb-4"><i class="fas fa-keyboard mr-2"></i>Заполнить вручную</h3>
+                        <h3 class="font-medium text-gray-700 mb-4"><i class="fas fa-keyboard mr-2"></i>Добавить одного ученика</h3>
+                        <p class="text-xs text-gray-500 mb-4">Имя и фамилия будут автоматически взяты из профиля ВК.</p>
                         <div class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">ФИО <span class="text-red-500">*</span></label>
-                                    <input type="text" id="newFullName" placeholder="Иванов Иван Иванович" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-blue-200 focus:border-blue-400">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-                                    <input type="text" id="newPhone" placeholder="+7 (999) 123-45-67" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-blue-200 focus:border-blue-400">
-                                </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                                <input type="text" id="newPhone" placeholder="+7 (999) 123-45-67" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-blue-200 focus:border-blue-400">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Профиль VK (ID или URL)</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Профиль VK (ссылка) <span class="text-red-500">*</span></label>
                                 <input type="text" id="newVkUrl" placeholder="https://vk.com/id123 или vk.com/durov" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-blue-200 focus:border-blue-400">
                             </div>
                             <button id="manualAddBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-sm"><i class="fas fa-plus-circle"></i> Добавить ученика</button>
                         </div>
                     </div>
-                    <!-- импорт из файла -->
                     <div class="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col items-start">
-                        <h3 class="font-medium text-gray-700 mb-3"><i class="fas fa-file-upload mr-2"></i>Импорт файлом</h3>
-                        <p class="text-xs text-gray-500 mb-3">Поддерживается CSV / XLSX (столбцы: ФИО, телефон, ссылка VK)</p>
+                        <h3 class="font-medium text-gray-700 mb-3"><i class="fas fa-file-upload mr-2"></i>Импорт из файла</h3>
+                        <p class="text-xs text-gray-500 mb-3">Загрузите .txt файл со списком ссылок VK (по одной на строку).</p>
                         <label class="cursor-pointer bg-white border border-gray-300 hover:bg-gray-100 rounded-xl px-4 py-2 text-sm font-medium text-gray-700 transition flex items-center gap-2 shadow-sm w-full justify-center">
                             <i class="fas fa-cloud-upload-alt"></i> Выбрать файл
-                            <input type="file" id="fileUploadInput" accept=".csv,.xlsx,.xls,.json" class="hidden">
+                            <input type="file" id="fileUploadInput" accept=".txt" class="hidden">
                         </label>
                         <div id="uploadStatus" class="text-xs text-gray-500 mt-3 italic"></div>
-                        <button id="processFileBtn" class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded-xl text-sm transition disabled:opacity-50" disabled>Обработать файл</button>
+                        <button id="processFileBtn" class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded-xl text-sm transition disabled:opacity-50" disabled>Импортировать</button>
                     </div>
                 </div>
-                <!-- превью последних добавленных (для обратной связи) -->
-                <div id="addFeedback" class="mt-6 text-sm text-green-600 bg-green-50 p-3 rounded-xl hidden"></div>
+                <div id="addFeedback" class="mt-6 text-sm p-3 rounded-xl hidden"></div>
             </div>
 
             <!-- Страница: Уведомления -->
@@ -152,17 +152,58 @@
                     <span id="notifCount">0 уведомлений</span>
                 </div>
             </div>
+
+            <!-- Страница: Сообщества -->
+            <div id="page-groups" class="page-content hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-layer-group text-indigo-500"></i>Мониторинг сообществ</h2>
+                    <div class="flex flex-wrap gap-3 items-center">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" id="groupFilterSearch" placeholder="Поиск по названию" class="filter-input pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm w-64 focus:ring-2 focus:ring-blue-100">
+                        </div>
+                        <select id="groupFilterMonitoring" class="border border-gray-200 rounded-xl text-sm px-3 py-2 bg-white focus:border-blue-400">
+                            <option value="all">Все сообщества</option>
+                            <option value="1">В мониторинге</option>
+                            <option value="0">Не в мониторинге</option>
+                        </select>
+                        <button id="resetGroupFiltersBtn" class="text-gray-500 hover:text-gray-700 text-sm px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50"><i class="fas fa-undo-alt mr-1"></i>Сброс</button>
+                        <button id="checkGroupUpdatesBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition flex items-center gap-2 shadow-sm">
+                            <i class="fas fa-sync-alt"></i> Проверить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto scrollable-table rounded-xl border border-gray-100">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Название</th>
+                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ссылка</th>
+                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата последнего поста</th>
+                                <th class="px-5 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Мониторинг</th>
+                                <th class="px-5 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="groupsTableBody" class="bg-white divide-y divide-gray-100">
+                            <!-- динамически из JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-xs text-gray-400 flex justify-between items-center">
+                    <span><i class="far fa-check-circle text-green-500"></i> Включённые сообщества проверяются на деструктивный контент</span>
+                    <span id="groupsCounter" class="font-medium">0 сообществ</span>
+                </div>
+            </div>
         </main>
 
         <footer class="text-center text-gray-400 text-xs mt-8">
-            VK School Monitor — Анализ стены через ИИ | Демонстрационный интерфейс
+            VK School Monitor | Demo
         </footer>
     </div>
 
     <script>
         // ---------- API UTILS ----------
-        const API_BASE = ''; // или '/api' если нужно, здесь оставим относительные пути
-
         async function apiGetUsers(search = '', monitoring = null) {
             const params = new URLSearchParams();
             if (search) params.append('search', search);
@@ -183,7 +224,7 @@
                 const err = await res.json().catch(() => ({ detail: 'Network error' }));
                 throw new Error(err.detail || 'Ошибка обновления статуса');
             }
-            return res.json(); // не обязательно использовать, но для подтверждения
+            return res.json();
         }
 
         async function apiAddUser(userData) {
@@ -192,18 +233,79 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
             });
-            if (!res.ok) throw new Error('Ошибка добавления');
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ detail: 'Network error' }));
+                throw new Error(err.detail || err.message || 'Ошибка добавления');
+            }
+            return res.json();
+        }
+
+        async function apiImportUsers(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch('/api/users/import', {
+                method: 'POST',
+                body: formData
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ detail: 'Network error' }));
+                throw new Error(err.detail || err.message || 'Ошибка импорта');
+            }
+            return res.json();
+        }
+
+        async function apiGetAlerts(search = '') {
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            const url = `/api/alerts?${params.toString()}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Ошибка загрузки уведомлений: ${res.statusText}`);
+            return res.json();
+        }
+
+        async function apiGetGroups(search = '', monitoring = null) {
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (monitoring !== null) params.append('monitoring', monitoring);
+            const url = `/api/groups?${params.toString()}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Ошибка загрузки групп: ${res.statusText}`);
+            return res.json();
+        }
+
+        async function apiToggleGroupMonitoring(groupId, newStatus) {
+            const res = await fetch(`/api/groups/${groupId}/monitoring`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status_id: newStatus })
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ detail: 'Network error' }));
+                throw new Error(err.detail || 'Ошибка обновления статуса группы');
+            }
             return res.json();
         }
 
         // ---------- GLOBAL STATE ----------
-        let currentStudents = [];   // храним последний ответ сервера
+        let currentStudents = [];
+        let currentGroups = [];
 
         // ---------- RENDER FUNCTIONS ----------
+        function formatDate(dateStr) {
+            if (!dateStr) return '—';
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return '—';
+                return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            } catch {
+                return '—';
+            }
+        }
+
         function renderStudentsTable(users) {
             const tbody = document.getElementById('studentsTableBody');
             if (!users.length) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Нет учеников по заданным фильтрам</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Нет учеников по заданным фильтрам</td></tr>`;
                 document.getElementById('studentsCounter').innerText = `0 учеников`;
                 return;
             }
@@ -213,17 +315,24 @@
                 const fullName = `${u.name || ''} ${u.surname || ''}`.trim();
                 const phone = u.phone || '—';
                 const link = u.link || '#';
-                const monitored = u.status_id == 1; // 1 - активен, 0 - неактивен
+                const lastPost = formatDate(u.last_post_date);
+                const monitored = u.status_id == 1;
                 html += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-5 py-3 whitespace-nowrap font-medium text-gray-800">${escapeHtml(fullName)}</td>
                         <td class="px-5 py-3 whitespace-nowrap text-gray-600">${escapeHtml(phone)}</td>
                         <td class="px-5 py-3 whitespace-nowrap text-blue-500 text-sm"><a href="${escapeHtml(link)}" target="_blank" class="hover:underline">${truncateVk(link)}</a></td>
+                        <td class="px-5 py-3 whitespace-nowrap text-gray-600 text-sm">${escapeHtml(lastPost)}</td>
                         <td class="px-5 py-3 whitespace-nowrap text-center">
                             <label class="inline-flex items-center cursor-pointer">
                                 <input type="checkbox" class="monitor-checkbox w-5 h-5 text-blue-600 rounded focus:ring-blue-400" data-id="${u.id}" ${monitored ? 'checked' : ''}>
                                 <span class="ml-2 text-sm text-gray-500">${monitored ? 'Активен' : 'Отключён'}</span>
                             </label>
+                        </td>
+                        <td class="px-5 py-3 whitespace-nowrap text-center">
+                            <button class="action-menu-toggle text-gray-400 hover:text-gray-600 focus:outline-none" data-id="${u.id}" data-name="${escapeHtml(fullName)}">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -231,7 +340,6 @@
             tbody.innerHTML = html;
             document.getElementById('studentsCounter').innerText = `${users.length} учеников`;
 
-            // Обработчики чекбоксов
             document.querySelectorAll('.monitor-checkbox').forEach(cb => {
                 cb.addEventListener('change', async (e) => {
                     const userId = parseInt(e.target.getAttribute('data-id'));
@@ -239,15 +347,13 @@
                     const newStatus = newChecked ? 1 : 0;
                     try {
                         await apiToggleMonitoring(userId, newStatus);
-                        // Обновляем локальный стейт
                         const user = currentStudents.find(u => u.id === userId);
                         if (user) user.status_id = newStatus;
-                        // Перерисовываем, чтобы обновить текст статуса
                         renderStudentsTable(currentStudents);
                         showToast(`Мониторинг ${newChecked ? 'включён' : 'отключён'}`, 'info');
                     } catch (err) {
                         showToast(`Ошибка: ${err.message}`, 'error');
-                        e.target.checked = !newChecked; // откатываем чекбокс
+                        e.target.checked = !newChecked;
                     }
                 });
             });
@@ -266,15 +372,112 @@
                 renderStudentsTable(users);
             } catch (err) {
                 showToast(`Ошибка загрузки списка: ${err.message}`, 'error');
-                document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="4" class="text-center py-8 text-red-400">Ошибка загрузки данных</td></tr>`;
+                document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-400">Ошибка загрузки данных</td></tr>`;
             }
         }
 
-        // ---------- СТРАНИЦА УВЕДОМЛЕНИЙ (заглушка) ----------
-        function renderNotifications() {
-            // Пока не реализован API /api/alerts, оставляем заглушку
-            document.getElementById('notificationsList').innerHTML = `<div class="text-center py-10 text-gray-400 bg-gray-50 rounded-xl"><i class="fas fa-inbox text-2xl mb-2 block"></i>Уведомления пока не подключены к API</div>`;
-            document.getElementById('notifCount').innerText = `0 уведомлений`;
+        async function loadNotifications() {
+            const search = document.getElementById('notifSearch').value.trim();
+            try {
+                const alerts = await apiGetAlerts(search);
+                const container = document.getElementById('notificationsList');
+                if (!alerts.length) {
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400 bg-gray-50 rounded-xl"><i class="fas fa-inbox text-2xl mb-2 block"></i>Нет уведомлений</div>`;
+                    document.getElementById('notifCount').innerText = `0 уведомлений`;
+                    return;
+                }
+                let html = '';
+                alerts.forEach(a => {
+                    html += `
+                        <div class="border border-gray-100 rounded-xl p-4 bg-white shadow-sm hover:shadow transition">
+                            <div class="flex items-center gap-2 flex-wrap mb-1">
+                                <span class="font-semibold text-gray-800">${escapeHtml(a.studentName)}</span>
+                                <a href="${escapeHtml(a.postLink)}" target="_blank" class="text-blue-500 text-sm hover:underline">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Пост
+                                </a>
+                            </div>
+                            <p class="text-gray-700 text-sm">${escapeHtml(a.reason)}</p>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+                document.getElementById('notifCount').innerText = `${alerts.length} уведомлений`;
+            } catch (err) {
+                showToast(`Ошибка: ${err.message}`, 'error');
+                document.getElementById('notificationsList').innerHTML = `<div class="text-center py-10 text-red-400">Ошибка загрузки данных</div>`;
+            }
+        }
+
+        function renderGroupsTable(groups) {
+            const tbody = document.getElementById('groupsTableBody');
+            if (!groups.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-400">Нет сообществ по заданным фильтрам</td></tr>`;
+                document.getElementById('groupsCounter').innerText = `0 сообществ`;
+                return;
+            }
+
+            let html = '';
+            groups.forEach(g => {
+                const name = g.name || 'Без названия';
+                const link = g.link || '#';
+                const lastPost = formatDate(g.last_post_date);
+                const monitored = g.status_id == 1;
+                html += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-5 py-3 whitespace-nowrap font-medium text-gray-800">${escapeHtml(name)}</td>
+                        <td class="px-5 py-3 whitespace-nowrap text-blue-500 text-sm"><a href="${escapeHtml(link)}" target="_blank" class="hover:underline">${truncateVk(link)}</a></td>
+                        <td class="px-5 py-3 whitespace-nowrap text-gray-600 text-sm">${escapeHtml(lastPost)}</td>
+                        <td class="px-5 py-3 whitespace-nowrap text-center">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="group-monitor-checkbox w-5 h-5 text-indigo-600 rounded focus:ring-indigo-400" data-id="${g.id}" ${monitored ? 'checked' : ''}>
+                                <span class="ml-2 text-sm text-gray-500">${monitored ? 'Активен' : 'Отключён'}</span>
+                            </label>
+                        </td>
+                        <td class="px-5 py-3 whitespace-nowrap text-center">
+                            <button class="action-menu-toggle text-gray-400 hover:text-gray-600 focus:outline-none" data-id="${g.id}" data-name="${escapeHtml(name)}">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('groupsCounter').innerText = `${groups.length} сообществ`;
+
+            document.querySelectorAll('.group-monitor-checkbox').forEach(cb => {
+                cb.addEventListener('change', async (e) => {
+                    const groupId = parseInt(e.target.getAttribute('data-id'));
+                    const newChecked = e.target.checked;
+                    const newStatus = newChecked ? 1 : 0;
+                    try {
+                        await apiToggleGroupMonitoring(groupId, newStatus);
+                        const group = currentGroups.find(g => g.id === groupId);
+                        if (group) group.status_id = newStatus;
+                        renderGroupsTable(currentGroups);
+                        showToast(`Мониторинг группы ${newChecked ? 'включён' : 'отключён'}`, 'info');
+                    } catch (err) {
+                        showToast(`Ошибка: ${err.message}`, 'error');
+                        e.target.checked = !newChecked;
+                    }
+                });
+            });
+        }
+
+        async function loadGroups() {
+            try {
+                const search = document.getElementById('groupFilterSearch').value.trim();
+                const monitoringSelect = document.getElementById('groupFilterMonitoring').value;
+                let monitoring = null;
+                if (monitoringSelect === '1') monitoring = 1;
+                else if (monitoringSelect === '0') monitoring = 0;
+
+                const groups = await apiGetGroups(search, monitoring);
+                currentGroups = groups;
+                renderGroupsTable(groups);
+            } catch (err) {
+                showToast(`Ошибка загрузки списка групп: ${err.message}`, 'error');
+                document.getElementById('groupsTableBody').innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-400">Ошибка загрузки данных</td></tr>`;
+            }
         }
 
         // ---------- НАВИГАЦИЯ ----------
@@ -289,38 +492,34 @@
                 document.getElementById('nav-add').classList.add('nav-active');
             } else if (pageId === 'notifications') {
                 document.getElementById('nav-notifications').classList.add('nav-active');
-                renderNotifications();
+                loadNotifications();
+            } else if (pageId === 'groups') {
+                document.getElementById('nav-groups').classList.add('nav-active');
+                loadGroups();
             }
         }
 
         // ---------- ДОБАВЛЕНИЕ УЧЕНИКА ----------
         async function addStudentManually() {
-            const fullName = document.getElementById('newFullName').value.trim();
             const phone = document.getElementById('newPhone').value.trim();
             const vk = document.getElementById('newVkUrl').value.trim();
-            if (!fullName) {
-                showToast('Введите ФИО ученика', 'error');
+            if (!vk) {
+                showToast('Введите ссылку на профиль ВК', 'error');
                 return;
             }
-            // Разбиваем ФИО на имя и фамилию (упрощённо: первое слово – имя, остальное – фамилия)
-            const parts = fullName.split(' ');
-            const name = parts[0] || '';
-            const surname = parts.slice(1).join(' ') || '';
-
-            const userData = { name, surname, phone, link: vk };
+            const userData = { link: vk, phone: phone || null };
             try {
-                await apiAddUser(userData);
-                document.getElementById('newFullName').value = '';
+                const result = await apiAddUser(userData);
                 document.getElementById('newPhone').value = '';
                 document.getElementById('newVkUrl').value = '';
-                showToast('Ученик добавлен', 'success');
-                switchPage('students'); // обновит список
+                showToast(result.message || 'Ученик добавлен', 'success');
+                switchPage('students');
             } catch (err) {
                 showToast(`Ошибка: ${err.message}`, 'error');
             }
         }
 
-        // ---------- ИМПОРТ ФАЙЛА (заглушка) ----------
+        // ---------- ИМПОРТ ФАЙЛА ----------
         let selectedFile = null;
         document.getElementById('fileUploadInput').addEventListener('change', (e) => {
             selectedFile = e.target.files[0];
@@ -335,17 +534,100 @@
             }
         });
 
-        document.getElementById('processFileBtn').addEventListener('click', () => {
+        document.getElementById('processFileBtn').addEventListener('click', async () => {
             if (!selectedFile) return;
-            // Здесь должна быть отправка файла на /api/users/import, пока заглушка
-            showToast('Импорт файлов пока не интегрирован с API', 'info');
-            // Очистка
-            document.getElementById('fileUploadInput').value = '';
-            document.getElementById('processFileBtn').disabled = true;
-            document.getElementById('uploadStatus').innerHTML = '';
-            selectedFile = null;
-            switchPage('students');
+            const btn = document.getElementById('processFileBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Импорт...';
+            try {
+                const result = await apiImportUsers(selectedFile);
+                showToast(result.message || 'Импорт завершён', 'success');
+                document.getElementById('fileUploadInput').value = '';
+                document.getElementById('processFileBtn').disabled = true;
+                document.getElementById('uploadStatus').innerHTML = '';
+                selectedFile = null;
+                btn.innerHTML = 'Импортировать';
+                switchPage('students');
+            } catch (err) {
+                showToast(`Ошибка: ${err.message}`, 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Импортировать';
+            }
         });
+
+        // ---------- ПРИНУДИТЕЛЬНАЯ ПРОВЕРКА ОБНОВЛЕНИЙ ----------
+        document.getElementById('checkUpdatesBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('checkUpdatesBtn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Проверка...';
+            try {
+                const res = await fetch('/api/users/check', { method: 'POST' });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.message || 'Ошибка проверки', 'error');
+                } else {
+                    showToast(data.message, 'success');
+                    loadStudents();
+                }
+            } catch (err) {
+                showToast('Ошибка соединения с сервером', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        });
+
+        // Кнопка проверки обновлений групп (заглушка)
+        document.getElementById('checkGroupUpdatesBtn').addEventListener('click', () => {
+            showToast('Функция проверки обновлений групп пока не реализована', 'info');
+        });
+
+        // ---------- ДИНАМИЧЕСКОЕ МЕНЮ ДЕЙСТВИЙ (fixed позиционирование) ----------
+        let activeMenu = null;
+
+        function createActionMenu(button, type) {
+            const id = button.dataset.id;
+            const name = button.dataset.name || '';
+
+            const menu = document.createElement('div');
+            menu.className = 'action-menu-fixed fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50';
+            menu.innerHTML = `
+                <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 edit-action">Редактировать</button>
+                <button class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 delete-action">Удалить</button>
+            `;
+            menu.dataset.id = id;
+            menu.dataset.type = type;
+
+            const rect = button.getBoundingClientRect();
+            menu.style.top = (rect.bottom + 4) + 'px';
+            menu.style.left = (rect.left - 130) + 'px'; // подгоняем, чтобы не вылезало за край
+
+            document.body.appendChild(menu);
+            return menu;
+        }
+
+        function closeActiveMenu() {
+            if (activeMenu) {
+                activeMenu.remove();
+                activeMenu = null;
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const toggle = event.target.closest('.action-menu-toggle');
+            if (toggle) {
+                closeActiveMenu();
+                const type = toggle.closest('#studentsTableBody') ? 'student' : 'group';
+                activeMenu = createActionMenu(toggle, type);
+                event.stopPropagation();
+            } else {
+                closeActiveMenu();
+            }
+        });
+
+        window.addEventListener('scroll', () => closeActiveMenu(), true);
+        window.addEventListener('resize', () => closeActiveMenu());
 
         // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
         function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
@@ -364,6 +646,7 @@
         document.getElementById('nav-students').addEventListener('click', () => switchPage('students'));
         document.getElementById('nav-add').addEventListener('click', () => switchPage('add'));
         document.getElementById('nav-notifications').addEventListener('click', () => switchPage('notifications'));
+        document.getElementById('nav-groups').addEventListener('click', () => switchPage('groups'));
 
         document.getElementById('filterSearch').addEventListener('input', () => loadStudents());
         document.getElementById('filterMonitoring').addEventListener('change', () => loadStudents());
@@ -372,7 +655,16 @@
             document.getElementById('filterMonitoring').value = 'all';
             loadStudents();
         });
+        document.getElementById('notifSearch').addEventListener('input', () => loadNotifications());
         document.getElementById('manualAddBtn').addEventListener('click', addStudentManually);
+
+        document.getElementById('groupFilterSearch').addEventListener('input', () => loadGroups());
+        document.getElementById('groupFilterMonitoring').addEventListener('change', () => loadGroups());
+        document.getElementById('resetGroupFiltersBtn').addEventListener('click', () => {
+            document.getElementById('groupFilterSearch').value = '';
+            document.getElementById('groupFilterMonitoring').value = 'all';
+            loadGroups();
+        });
 
         // ---------- ИНИЦИАЛИЗАЦИЯ ----------
         switchPage('students');

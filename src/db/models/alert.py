@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.mixins import CreatedAtMixin
@@ -12,10 +12,13 @@ if TYPE_CHECKING:
 
 class Alert(Base, CreatedAtMixin):
     __tablename__ = "alerts"
+    __table_args__ = (
+        UniqueConstraint('user_id', 'post_id', name='uq_user_post_alert'),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), unique=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"))
     reason: Mapped[str] = mapped_column(Text)
 
     user: Mapped["User"] = relationship("User", back_populates="alerts")

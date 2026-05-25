@@ -1,66 +1,31 @@
 import logging
 
-from sqlalchemy import insert, or_, select
+from sqlalchemy import distinct, func, insert, or_, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from src.db.session import get_db_session
-from src.db.models import User
+from src.db.models import User, Post
 
 
 logger = logging.getLogger(__name__)
 
 
-async def api_add_user(
-    id: int,
-    link: str,
-    name: str = None,
-    surname: str = None,
-    phone: str = None
-):
-    session = None
-    try:
-        async with get_db_session() as session:
-            new_user = User(
-                id=id,
-                link=link,
-                name=name,
-                surname=surname,
-                phone=phone
-            )
-            session.add(new_user)
+async def api_add_users(users_data: list[dict]) -> int:
+    if not users_data:
+        return 0
+
+    async with get_db_session() as session:
+        try:
+            stmt = pg_insert(User).values(users_data).on_conflict_do_nothing(index_elements=["link"])
+            result = await session.execute(stmt)
             await session.commit()
-            return True
-
-    except Exception as e:
-        logger.error(f"Unexpected db error for user {id}: {e}")
-        if session:
-            await session.rollback()
-        raise
-
-async def api_add_users(users_data: list[tuple]):
-    session = None
-    try: 
-        async with get_db_session() as session:
-            mappings = []
-            for user_data in users_data:
-                id, link, name, surname, phone = user_data
-                mapping = {
-                    "id": id,
-                    "link": link,
-                    "name": name,
-                    "surname": surname,
-                    "phone": phone
-                }
-                mappings.append(mapping)
-
-            await session.execute(insert(User).values(mappings))
-            await session.commit()
-            return True
+            return result.rowcount
         
-    except Exception as e:
-        logger.error(f"Unexpected db error for batch add users: {e}")
-        if session:
-            await session.rollback()
-        raise
+        except Exception as e:
+            logger.error(f"Unexpected db error for add user(s): {e}")
+            if session:
+                await session.rollback()
+            raise
 
 async def get_tracked_users_last_post_dates() -> dict[int, int | None]:
     try:
@@ -69,12 +34,36 @@ async def get_tracked_users_last_post_dates() -> dict[int, int | None]:
             result = await session.execute(stmt)
             return {row[0]: row[1] for row in result.all()}
             
-
     except Exception as e:
         logger.error(f"Unexpected error, failed to get last post dates for tracked users: {e}")
         if session:
             await session.rollback()
         raise
+
+async def update_last_post_dates():
+        try:
+            async with get_db_session() as session:
+                max_date_subq = (
+                    select(func.max(Post.date))
+                    .where(Post.user_id == User.id)
+                    .correlate(User)               
+                    .scalar_subquery()
+                )
+
+                stmt = (
+                    update(User)
+                    .where(User.id.in_(select(distinct(Post.user_id))))
+                    .values(last_post_date=max_date_subq)
+                )
+
+                await session.execute(stmt)
+                await session.commit()
+
+        except Exception as e:
+            logger.error(f"Unexpected error while update last_post_date: {e}")
+            if session:
+                await session.rollback()
+            raise
 
 async def api_get_users(search: str = None, monitoring: int = None):
     try:
@@ -85,7 +74,8 @@ async def api_get_users(search: str = None, monitoring: int = None):
                 User.surname,
                 User.phone,
                 User.link,
-                User.status_id
+                User.status_id,
+                User.last_post_date
             )
             
             if search:
