@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USER:-vk}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vk}
+      POSTGRES_DB: ${DB_NAME:-vk_school_monitor}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vk} -d ${DB_NAME:-vk_school_monitor}"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  app:
+    build: .
+    environment:
+      DB_USER: ${DB_USER:-vk}
+      DB_PASSWORD: ${DB_PASSWORD:-vk}
+      DB_NAME: ${DB_NAME:-vk_school_monitor}
+      DB_HOST: db
+      DB_PORT: 5432
+      VK_TOKEN: ${VK_TOKEN:-}
+    ports:
+      - "8080:8000"   # host 8000 is taken locally; app served on http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
