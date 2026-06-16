@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import datetime
 
 from src.config import settings
-from src.client.scripts import wall_get_script, users_get_script, groups_get_script
+from src.client.scripts import wall_get_script, users_get_script, groups_get_script, groups_get_by_id_script
 
 
 logger = logging.getLogger(__name__)
@@ -145,6 +145,44 @@ class VKCLient:
 
         return all_users
     
+    async def groups_get_by_links(self, links: list[str]) -> list[dict]:
+        if not links:
+            return []
+
+        group_ids = []
+        for link in links:
+            match = re.search(r"vk\.com/(.+)", link)
+            if match:
+                group_ids.append(match.group(1))
+
+        if not group_ids:
+            return []
+
+        script = groups_get_by_id_script(group_ids)
+        groups_data_raw = await self._execute(script)
+
+        # API.groups.getById в 5.199 отдаёт {"groups": [...]}, в старых версиях — просто список.
+        if isinstance(groups_data_raw, dict):
+            items = groups_data_raw.get("groups", [])
+        elif isinstance(groups_data_raw, list):
+            items = groups_data_raw
+        else:
+            items = []
+
+        all_groups = []
+        for group in items:
+            gid = group.get("id")
+            if not gid:
+                continue
+            all_groups.append({
+                "id": gid,
+                "name": group.get("name", ""),
+                "link": f"https://vk.com/club{gid}",
+                "last_post_date": None,
+            })
+
+        return all_groups
+
     async def groups_get(self, user_ids: list[int]) -> list[dict]:
         if not user_ids:
             return []

@@ -4,12 +4,12 @@ from fastapi import FastAPI, File, Query, UploadFile
 from fastapi.responses import FileResponse
 
 from src.collector import collect_and_analyze_users_posts
-from src.db.methods.group import api_get_groups, api_update_group_status
+from src.db.methods.group import add_groups, api_get_groups, api_update_group_status
 from src.client.vk_client import VKCLient
 from src.api.dto.base import BaseResponse
 from src.db.methods.user import api_add_users, api_get_users, api_update_user_status
 from src.db.methods.alert import api_get_alerts
-from src.api.dto.schemas import AddUserRequest, MonitoringUpdateRequest
+from src.api.dto.schemas import AddGroupRequest, AddUserRequest, MonitoringUpdateRequest
 from src.utils.utils import extract_links_from_file_text
 
 
@@ -116,6 +116,24 @@ async def update_group_monitoring(group_id: int, data: MonitoringUpdateRequest):
     try:
         result = await api_update_group_status(group_id, data.status_id)
         return result
+    except Exception as e:
+        return BaseResponse(error=True, message="Internal server error")
+
+@app.post("/api/groups")
+async def add_group(req: AddGroupRequest):
+    try:
+        async with VKCLient() as client:
+            groups = await client.groups_get_by_links([req.link])
+        if not groups:
+            return BaseResponse(error=True, message="Сообщество не найдено в ВК")
+        group = groups[0]
+
+        added = await add_groups([group])
+        if added:
+            return BaseResponse(error=False, message="Сообщество добавлено", payload=group)
+        else:
+            return BaseResponse(error=False, message="Сообщество уже существует в базе")
+
     except Exception as e:
         return BaseResponse(error=True, message="Internal server error")
 

@@ -8,3 +8,7 @@ class MonitoringUpdateRequest(BaseModel):
 class AddUserRequest(BaseModel):
     link: str
     phone: str | None = None
+
+
+class AddGroupRequest(BaseModel):
+    link: str
